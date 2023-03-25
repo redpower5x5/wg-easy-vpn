@@ -312,6 +312,18 @@ Endpoint = ${WG_HOST}:${WG_PORT}`;
     await this.saveConfig();
   }
 
+  async clientsControl({ clients }) {
+    const res = JSON.parse(clients);
+    for (const key in res) {
+      if(obj.hasOwnProperty(key)) {
+        const client = await this.getClient({ key });
+        client.enabled = res[key];
+        client.updatedAt = new Date();
+      }
+    }
+    await this.saveConfig();
+  }
+
   async updateClientName({ clientId, name }) {
     const client = await this.getClient({ clientId });
 
