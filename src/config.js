@@ -17,7 +17,7 @@ module.exports.WG_EXPORTED_SERVER_PRIVATE = process.env.WG_EXPORTED_SERVER_PRIVA
 module.exports.WG_EXPORTED_SERVER_PUBLIC = process.env.WG_EXPORTED_SERVER_PUBLIC || '';
 module.exports.WG_DEFAULT_DNS = typeof process.env.WG_DEFAULT_DNS === 'string'
   ? process.env.WG_DEFAULT_DNS
-  : '1.1.1.1';
+  : '8.8.8.8';
 module.exports.WG_ALLOWED_IPS = process.env.WG_ALLOWED_IPS || '0.0.0.0/0, ::/0';
 
 module.exports.WG_PRE_UP = process.env.WG_PRE_UP || '';
