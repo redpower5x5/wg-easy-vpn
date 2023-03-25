@@ -323,8 +323,8 @@ Endpoint = ${WG_HOST}:${WG_PORT}`;
         debug(`data: ${res[key]}`);
         client.enabled = res[key];
         client.updatedAt = new Date();
-        await this.saveConfig();
     }
+    await this.saveConfig();
   }
 
   async updateClientName({ clientId, name }) {
