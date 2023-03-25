@@ -314,11 +314,13 @@ Endpoint = ${WG_HOST}:${WG_PORT}`;
 
   async clientsControl({ clients }) {
     debug(`json: ${JSON.stringify(clients)}`);
-    for(var key in clients.jsonData) {
+    const text = JSON.stringify(clients);
+    var res = JSON.parse(text);
+    for(var key in res) {
         debug(`key: ${key}`);
-        const client = await this.getClient({ key });
-        debug(`data: ${clients.jsonData[key]}`);
-        client.enabled = clients.jsonData[key];
+        const client = await this.getClient(key);
+        debug(`data: ${res[key]}`);
+        client.enabled = res[key];
         client.updatedAt = new Date();
         await this.saveConfig();
     }
