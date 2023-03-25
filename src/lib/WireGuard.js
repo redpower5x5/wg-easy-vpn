@@ -313,7 +313,9 @@ Endpoint = ${WG_HOST}:${WG_PORT}`;
   }
 
   async clientsControl({ clients }) {
+    debug(`input: ${JSON.stringify(clients)}`);
     const res = JSON.parse(clients);
+    debug(`parsed: ${JSON.stringify(res)}`);
     for (const key in res) {
       if(obj.hasOwnProperty(key)) {
         const client = await this.getClient({ key });
