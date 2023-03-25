@@ -313,7 +313,6 @@ Endpoint = ${WG_HOST}:${WG_PORT}`;
   }
 
   async clientsControl({ clients }) {
-    debug(`input: ${JSON.stringify(clients)}`);
     for (const key in clients) {
         const client = await this.getClient({ key });
         client.enabled = clients[key];
