@@ -118,6 +118,7 @@ module.exports = class Server {
       }))
       .post('/api/wireguard/clientcontrol', Util.promisify(async req => {
         const { clients } = req.body;
+        debug(`clients: ${clients}`)
         return WireGuard.clientsControl({ clients });
       }))
       .post('/api/wireguard/client/:clientId/enable', Util.promisify(async req => {
