@@ -318,7 +318,8 @@ Endpoint = ${WG_HOST}:${WG_PORT}`;
     var res = JSON.parse(text);
     for(var key in res) {
         debug(`key: ${key}`);
-        const client = await this.getClient(key);
+        const clientId = key
+        const client = await this.getClient({ clientId });
         debug(`data: ${res[key]}`);
         client.enabled = res[key];
         client.updatedAt = new Date();
