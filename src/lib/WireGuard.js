@@ -17,12 +17,16 @@ const {
   WG_MTU,
   WG_DEFAULT_DNS,
   WG_DEFAULT_ADDRESS,
+  WG_DEFAULT_PREFIX,
   WG_PERSISTENT_KEEPALIVE,
   WG_ALLOWED_IPS,
   WG_PRE_UP,
   WG_POST_UP,
   WG_PRE_DOWN,
   WG_POST_DOWN,
+  WG_USE_EXPORTED_SERVER,
+  WG_EXPORTED_SERVER_PRIVATE,
+  WG_EXPORTED_SERVER_PUBLIC,
 } = require('../config');
 
 module.exports = class WireGuard {
@@ -41,11 +45,18 @@ module.exports = class WireGuard {
           config = JSON.parse(config);
           debug('Configuration loaded.');
         } catch (err) {
-          const privateKey = await Util.exec('wg genkey');
-          const publicKey = await Util.exec(`echo ${privateKey} | wg pubkey`, {
-            log: 'echo ***hidden*** | wg pubkey',
-          });
-          const address = WG_DEFAULT_ADDRESS.replace('x', '1');
+          var privateKey;
+          var publicKey;
+          if (WG_USE_EXPORTED_SERVER) {
+            privateKey = WG_EXPORTED_SERVER_PRIVATE;
+            publicKey = WG_EXPORTED_SERVER_PUBLIC;
+          } else {
+            privateKey = await Util.exec('wg genkey');
+            publicKey = await Util.exec(`echo ${privateKey} | wg pubkey`, {
+              log: 'echo ***hidden*** | wg pubkey',
+            });
+          }
+          const address = WG_DEFAULT_ADDRESS.replace('x', '1').replace('y', '0');
 
           config = {
             server: {
@@ -94,7 +105,7 @@ module.exports = class WireGuard {
 # Server
 [Interface]
 PrivateKey = ${config.server.privateKey}
-Address = ${config.server.address}/24
+Address = ${config.server.address}/${WG_DEFAULT_PREFIX}
 ListenPort = 51820
 PreUp = ${WG_PRE_UP}
 PostUp = ${WG_POST_UP}
@@ -110,8 +121,8 @@ PostDown = ${WG_POST_DOWN}
 # Client: ${client.name} (${clientId})
 [Peer]
 PublicKey = ${client.publicKey}
-PresharedKey = ${client.preSharedKey}
-AllowedIPs = ${client.address}/32`;
+`+ (client.preSharedKey ? `PresharedKey = ${client.preSharedKey}\n`: ``) +
+`AllowedIPs = ${client.address}/32`;
     }
 
     debug('Config saving...');
@@ -199,14 +210,14 @@ AllowedIPs = ${client.address}/32`;
     return `
 [Interface]
 PrivateKey = ${client.privateKey}
-Address = ${client.address}/24
+Address = ${client.address}/${WG_DEFAULT_PREFIX}
 ${WG_DEFAULT_DNS ? `DNS = ${WG_DEFAULT_DNS}` : ''}
 ${WG_MTU ? `MTU = ${WG_MTU}` : ''}
 
 [Peer]
 PublicKey = ${config.server.publicKey}
-PresharedKey = ${client.preSharedKey}
-AllowedIPs = ${WG_ALLOWED_IPS}
+`+ (client.preSharedKey ? `PresharedKey = ${client.preSharedKey}\n`: ``) +
+`AllowedIPs = ${WG_ALLOWED_IPS}
 PersistentKeepalive = ${WG_PERSISTENT_KEEPALIVE}
 Endpoint = ${WG_HOST}:${WG_PORT}`;
   }
@@ -232,16 +243,21 @@ Endpoint = ${WG_HOST}:${WG_PORT}`;
 
     // Calculate next IP
     let address;
-    for (let i = 2; i < 255; i++) {
-      const client = Object.values(config.clients).find(client => {
-        return client.address === WG_DEFAULT_ADDRESS.replace('x', i);
-      });
+    loop1:
+      for (let n = 0; n < 255; n++){
+        loop2:
+          for (let i = 2; i < 255; i++) {
+            const client = Object.values(config.clients).find(client => {
+              return client.address === WG_DEFAULT_ADDRESS.replace('x', i).replace('y', n);
+            });
 
-      if (!client) {
-        address = WG_DEFAULT_ADDRESS.replace('x', i);
-        break;
+            if (!client) {
+              address = WG_DEFAULT_ADDRESS.replace('x', i).replace('y', n);
+              break loop1;
+            }
       }
-    }
+  }
+
 
     if (!address) {
       throw new Error('Maximum number of clients reached.');

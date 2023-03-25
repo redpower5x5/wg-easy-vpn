@@ -10,7 +10,11 @@ module.exports.WG_HOST = process.env.WG_HOST;
 module.exports.WG_PORT = process.env.WG_PORT || 51820;
 module.exports.WG_MTU = process.env.WG_MTU || null;
 module.exports.WG_PERSISTENT_KEEPALIVE = process.env.WG_PERSISTENT_KEEPALIVE || 0;
-module.exports.WG_DEFAULT_ADDRESS = process.env.WG_DEFAULT_ADDRESS || '10.8.0.x';
+module.exports.WG_DEFAULT_ADDRESS = process.env.WG_DEFAULT_ADDRESS || '10.88.y.x';
+module.exports.WG_DEFAULT_PREFIX = process.env.WG_DEFAULT_PREFIX || 16;
+module.exports.WG_USE_EXPORTED_SERVER = process.env.WG_USE_EXPORTED_SERVER || false;
+module.exports.WG_EXPORTED_SERVER_PRIVATE = process.env.WG_EXPORTED_SERVER_PRIVATE || '';
+module.exports.WG_EXPORTED_SERVER_PUBLIC = process.env.WG_EXPORTED_SERVER_PUBLIC || '';
 module.exports.WG_DEFAULT_DNS = typeof process.env.WG_DEFAULT_DNS === 'string'
   ? process.env.WG_DEFAULT_DNS
   : '1.1.1.1';
